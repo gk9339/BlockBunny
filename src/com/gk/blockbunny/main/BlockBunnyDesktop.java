@@ -11,8 +11,8 @@ public class BlockBunnyDesktop {
 				new LwjglApplicationConfiguration();
 		
 		cfg.title = Game.TITLE;
-		cfg.width = Game.V_HEIGHT * Game.SCALE;
-		cfg.height = Game.V_WIDTH * Game.SCALE;
+		cfg.width = Game.V_WIDTH * Game.SCALE;
+		cfg.height = Game.V_HEIGHT * Game.SCALE;
 		
 		new LwjglApplication(new Game(), cfg);
 		
