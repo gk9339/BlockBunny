@@ -10,13 +10,13 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.gk.blockbunny.handlers.B2DVars;
 import com.gk.blockbunny.handlers.GameStateManager;
 import com.gk.blockbunny.handlers.MyContactListener;
+import com.gk.blockbunny.handlers.MyInput;
 import com.gk.blockbunny.main.Game;
 
 public class Play extends GameState{
@@ -45,7 +45,7 @@ public class Play extends GameState{
 		FixtureDef fdef = new FixtureDef();
 		fdef.shape = shape;
 		fdef.filter.categoryBits = B2DVars.BIT_GROUND;
-		fdef.filter.maskBits = B2DVars.BIT_BOX | B2DVars.BIT_BALL;
+		fdef.filter.maskBits = B2DVars.BIT_BOX;
 		body.createFixture(fdef).setUserData("Ground");;
 		
 		bdef.position.set(160 / PPM, 200 / PPM);
@@ -62,23 +62,22 @@ public class Play extends GameState{
 		bdef.position.set(153 / PPM, 220 / PPM);
 		body = world.createBody(bdef);
 		
-		//circle
-		CircleShape cshape = new CircleShape();
-		cshape.setRadius(5 / PPM);
-		fdef.shape = cshape;
-		fdef.filter.categoryBits = B2DVars.BIT_BALL;
-		fdef.filter.maskBits = B2DVars.BIT_GROUND;
-		body.createFixture(fdef).setUserData("Ball");
-		
 		b2dcam = new OrthographicCamera();
 		b2dcam.setToOrtho(false, Game.V_WIDTH / PPM, Game.V_HEIGHT / PPM);
 		
 	}
 	
 	public void handleInput() {
-		
+		if(MyInput.isPressed(MyInput.BUTTON1)) {
+			System.out.println("Pressed Z");
+		}
+		if(MyInput.isDown(MyInput.BUTTON2)) {
+			System.out.println("Hold X");
+		}
 	}
 	public void update(float dt) {
+		
+		handleInput();
 		
 		world.step(dt, 6, 2);
 		

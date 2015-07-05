@@ -11,9 +11,7 @@ public class MyContactListener implements ContactListener{
 	public void beginContact(Contact c) {
 		Fixture fa = c.getFixtureA();
 		Fixture fb = c.getFixtureB();
-		
-		System.out.println("Begin " + fa.getUserData() + " , " + fb.getUserData());
-	}
+}
 	public void endContact(Contact c) {
 	}
 	

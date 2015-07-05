@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.gk.blockbunny.handlers.GameStateManager;
+import com.gk.blockbunny.handlers.MyInput;
+import com.gk.blockbunny.handlers.MyInputProcessor;
 
 public class Game implements ApplicationListener{
 	
@@ -24,6 +26,8 @@ public class Game implements ApplicationListener{
 	
 	public void create() {
 		
+		Gdx.input.setInputProcessor(new MyInputProcessor());
+		
 		sb = new SpriteBatch();
 		cam = new OrthographicCamera();
 		cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
@@ -41,6 +45,7 @@ public class Game implements ApplicationListener{
 			accum -= STEP;
 			gsm.update(STEP);
 			gsm.render();
+			MyInput.update();
 		}
 		
 	}
