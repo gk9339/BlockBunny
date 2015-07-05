@@ -14,7 +14,9 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.gk.blockbunny.handlers.B2DVars;
 import com.gk.blockbunny.handlers.GameStateManager;
+import com.gk.blockbunny.handlers.MyContactListener;
 import com.gk.blockbunny.main.Game;
 
 public class Play extends GameState{
@@ -29,37 +31,44 @@ public class Play extends GameState{
 		super(gsm);
 		
 		world = new World(new Vector2(0, -9.81f), true);
+		world.setContactListener(new MyContactListener());
 		b2dr = new Box2DDebugRenderer();
 		
-		//create platform
 		BodyDef bdef = new BodyDef();
 		bdef.position.set(160 / PPM,120 / PPM);
 		bdef.type = BodyType.StaticBody;//unaffected by forces
 		Body body = world.createBody(bdef);
 		
+		//platform
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(50 / PPM, 5 / PPM);
-		
 		FixtureDef fdef = new FixtureDef();
 		fdef.shape = shape;
-		body.createFixture(fdef);
+		fdef.filter.categoryBits = B2DVars.BIT_GROUND;
+		fdef.filter.maskBits = B2DVars.BIT_BOX | B2DVars.BIT_BALL;
+		body.createFixture(fdef).setUserData("Ground");;
 		
 		bdef.position.set(160 / PPM, 200 / PPM);
 		bdef.type = BodyType.DynamicBody;
 		body = world.createBody(bdef);
 		
+		//box
 		shape.setAsBox(5 / PPM, 5 / PPM);
 		fdef.shape = shape;
-		fdef.restitution = 0.5f;
-		body.createFixture(fdef);
+		fdef.filter.categoryBits = B2DVars.BIT_BOX;
+		fdef.filter.maskBits = B2DVars.BIT_GROUND;
+		body.createFixture(fdef).setUserData("Box");;
 		
 		bdef.position.set(153 / PPM, 220 / PPM);
 		body = world.createBody(bdef);
 		
+		//circle
 		CircleShape cshape = new CircleShape();
 		cshape.setRadius(5 / PPM);
 		fdef.shape = cshape;
-		body.createFixture(fdef);
+		fdef.filter.categoryBits = B2DVars.BIT_BALL;
+		fdef.filter.maskBits = B2DVars.BIT_GROUND;
+		body.createFixture(fdef).setUserData("Ball");
 		
 		b2dcam = new OrthographicCamera();
 		b2dcam.setToOrtho(false, Game.V_WIDTH / PPM, Game.V_HEIGHT / PPM);
