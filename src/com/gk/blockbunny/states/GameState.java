@@ -13,7 +13,7 @@ public abstract class GameState {
 	protected SpriteBatch sb;
 	protected OrthographicCamera cam;
 	protected OrthographicCamera hudCam;
-	
+
 	protected GameState(GameStateManager gsm) {
 		this.gsm = gsm;
 		game = gsm.game();
