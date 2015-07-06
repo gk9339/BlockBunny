@@ -26,12 +26,17 @@ public class Play extends GameState{
 	
 	private OrthographicCamera b2dcam;
 	
+	private Body playerBody;
+	private MyContactListener cl;
+	
 	public Play(GameStateManager gsm) {
 		
 		super(gsm);
 		
+		cl =  new MyContactListener();
+		
 		world = new World(new Vector2(0, -9.81f), true);
-		world.setContactListener(new MyContactListener());
+		world.setContactListener(cl);
 		b2dr = new Box2DDebugRenderer();
 		
 		BodyDef bdef = new BodyDef();
@@ -45,22 +50,27 @@ public class Play extends GameState{
 		FixtureDef fdef = new FixtureDef();
 		fdef.shape = shape;
 		fdef.filter.categoryBits = B2DVars.BIT_GROUND;
-		fdef.filter.maskBits = B2DVars.BIT_BOX;
+		fdef.filter.maskBits = B2DVars.BIT_PLAYER;
 		body.createFixture(fdef).setUserData("Ground");;
 		
+		//player
 		bdef.position.set(160 / PPM, 200 / PPM);
 		bdef.type = BodyType.DynamicBody;
-		body = world.createBody(bdef);
+		playerBody = world.createBody(bdef);
 		
-		//box
 		shape.setAsBox(5 / PPM, 5 / PPM);
 		fdef.shape = shape;
-		fdef.filter.categoryBits = B2DVars.BIT_BOX;
+		fdef.filter.categoryBits = B2DVars.BIT_PLAYER;
 		fdef.filter.maskBits = B2DVars.BIT_GROUND;
-		body.createFixture(fdef).setUserData("Box");;
+		playerBody.createFixture(fdef).setUserData("Player");;
 		
-		bdef.position.set(153 / PPM, 220 / PPM);
-		body = world.createBody(bdef);
+		//foot sensor
+		shape.setAsBox(2 / PPM, 2 / PPM, new Vector2(0, -5 / PPM), 0);
+		fdef.shape = shape;
+		fdef.filter.categoryBits = B2DVars.BIT_PLAYER;
+		fdef.filter.maskBits = B2DVars.BIT_GROUND;
+		fdef.isSensor = true;
+		playerBody.createFixture(fdef).setUserData("foot");
 		
 		b2dcam = new OrthographicCamera();
 		b2dcam.setToOrtho(false, Game.V_WIDTH / PPM, Game.V_HEIGHT / PPM);
@@ -68,11 +78,12 @@ public class Play extends GameState{
 	}
 	
 	public void handleInput() {
+		
+		//player jump
 		if(MyInput.isPressed(MyInput.BUTTON1)) {
-			System.out.println("Pressed Z");
-		}
-		if(MyInput.isDown(MyInput.BUTTON2)) {
-			System.out.println("Hold X");
+			if(cl.isPlayerOnGround()) {
+				playerBody.applyForceToCenter(0, 200, true);
+			}
 		}
 	}
 	public void update(float dt) {
