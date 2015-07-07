@@ -10,12 +10,12 @@
  </layer>
  <layer name="green" width="40" height="8">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUkAOY8OBRMDQAAB0QAA8=
+   eJxjYBgFo2AUUAMwIeFRMDQAAA8gAAc=
   </data>
  </layer>
  <layer name="red" width="40" height="8">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjALaAEYceLAAAAiEAAc=
+   eJxjYBgFo2AUjALaA0Y8eKAAAAi4AAg=
   </data>
  </layer>
  <objectgroup name="crystals"/>
