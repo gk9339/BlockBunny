@@ -29,7 +29,6 @@ public class Play extends GameState{
 	
 	private World world;
 	private Box2DDebugRenderer b2dr;
-	
 	private OrthographicCamera b2dcam;
 	
 	private Body playerBody;
@@ -43,92 +42,21 @@ public class Play extends GameState{
 		
 		super(gsm);
 		
+		//B2D setup
 		cl =  new MyContactListener();
-		
 		world = new World(new Vector2(0, -9.81f), true);
 		world.setContactListener(cl);
 		b2dr = new Box2DDebugRenderer();
 		
-		BodyDef bdef = new BodyDef();
-		bdef.position.set(160 / PPM,120 / PPM);
-		bdef.type = BodyType.StaticBody;//unaffected by forces
-		Body body = world.createBody(bdef);
+		//create player
+		createPlayer();
 		
-		//platform
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(50 / PPM, 5 / PPM);
-		FixtureDef fdef = new FixtureDef();
-		fdef.shape = shape;
-		fdef.filter.categoryBits = B2DVars.BIT_GROUND;
-		fdef.filter.maskBits = B2DVars.BIT_PLAYER;
-		body.createFixture(fdef).setUserData("Ground");;
+		//create tiles
+		createTiles();
 		
-		//player
-		bdef.position.set(160 / PPM, 200 / PPM);
-		bdef.type = BodyType.DynamicBody;
-		playerBody = world.createBody(bdef);
-		
-		shape.setAsBox(5 / PPM, 5 / PPM);
-		fdef.shape = shape;
-		fdef.filter.categoryBits = B2DVars.BIT_PLAYER;
-		fdef.filter.maskBits = B2DVars.BIT_GROUND;
-		playerBody.createFixture(fdef).setUserData("Player");;
-		
-		//foot sensor
-		shape.setAsBox(2 / PPM, 2 / PPM, new Vector2(0, -5 / PPM), 0);
-		fdef.shape = shape;
-		fdef.filter.categoryBits = B2DVars.BIT_PLAYER;
-		fdef.filter.maskBits = B2DVars.BIT_GROUND;
-		fdef.isSensor = true;
-		playerBody.createFixture(fdef).setUserData("foot");
 		
 		b2dcam = new OrthographicCamera();
 		b2dcam.setToOrtho(false, Game.V_WIDTH / PPM, Game.V_HEIGHT / PPM);
-		
-		//----------TILED----------//
-		
-		//load map
-		tileMap = new TmxMapLoader().load("res/maps/test.tmx");
-		tmr = new OrthogonalTiledMapRenderer(tileMap);
-		
-		TiledMapTileLayer layer = (TiledMapTileLayer) tileMap.getLayers().get("red");
-		
-		tileSize = layer.getTileWidth();
-		
-		for(int row = 0; row < layer.getHeight(); row++) {
-			for(int col = 0; col < layer.getWidth(); col++) {
-				
-				//get cell
-				Cell cell = layer.getCell(col, row);
-				
-				//check cell
-				if(cell == null) continue;
-				if(cell.getTile() == null) continue;
-				
-				//create body and fixture from cell
-				bdef.type = BodyType.StaticBody;
-				bdef.position.set(
-						(col + 0.5f) * tileSize / PPM,
-						(row + 0.5f) * tileSize / PPM);
-				
-				ChainShape cs = new ChainShape();
-				Vector2[] v = new Vector2[3];
-				v[0] = new Vector2(
-						-tileSize / 2 / PPM, -tileSize / 2 / PPM);
-				v[1] = new Vector2(
-						-tileSize / 2 / PPM, tileSize / 2 / PPM);
-				v[2] = new Vector2(
-						tileSize / 2 / PPM, tileSize / 2 / PPM);
-				cs.createChain(v);
-				
-				fdef.friction = 0;
-				fdef.shape = cs;
-				fdef.filter.categoryBits = 1;
-				fdef.filter.maskBits = -1;
-				fdef.isSensor = false;
-				world.createBody(bdef).createFixture(fdef);
-			}
-		}
 		
 	}
 	
@@ -162,6 +90,90 @@ public class Play extends GameState{
 	}
 	public void dispose() {
 		
+	}
+	
+	private void createPlayer() {
+		BodyDef bdef = new BodyDef();
+		PolygonShape shape = new PolygonShape();
+		FixtureDef fdef = new FixtureDef();
+		
+		//player
+		bdef.position.set(160 / PPM, 200 / PPM);
+		bdef.type = BodyType.DynamicBody;
+		playerBody = world.createBody(bdef);
+		
+		shape.setAsBox(5 / PPM, 5 / PPM);
+		fdef.shape = shape;
+		fdef.filter.categoryBits = B2DVars.BIT_PLAYER;
+		fdef.filter.maskBits = B2DVars.BIT_RED;
+		playerBody.createFixture(fdef).setUserData("Player");;
+		
+		//foot sensor
+		shape.setAsBox(2 / PPM, 2 / PPM, new Vector2(0, -5 / PPM), 0);
+		fdef.shape = shape;
+		fdef.filter.categoryBits = B2DVars.BIT_PLAYER;
+		fdef.filter.maskBits = B2DVars.BIT_RED;
+		fdef.isSensor = true;
+		playerBody.createFixture(fdef).setUserData("foot");
+	}
+	
+	private void createTiles() {
+		//load map
+		tileMap = new TmxMapLoader().load("res/maps/test.tmx");
+		tmr = new OrthogonalTiledMapRenderer(tileMap);
+		tileSize = (int) tileMap.getProperties().get("tilewidth");
+		
+		TiledMapTileLayer layer;
+		layer = (TiledMapTileLayer) tileMap.getLayers().get("red");
+		createLayer(layer, B2DVars.BIT_RED);
+		
+		layer = (TiledMapTileLayer) tileMap.getLayers().get("green");
+		createLayer(layer, B2DVars.BIT_GREEN);
+		
+		layer = (TiledMapTileLayer) tileMap.getLayers().get("blue");
+		createLayer(layer, B2DVars.BIT_BLUE);
+
+	}
+	
+	private void createLayer(TiledMapTileLayer layer, short bits) {
+		
+		BodyDef bdef = new BodyDef();
+		FixtureDef fdef = new FixtureDef();
+		
+		for(int row = 0; row < layer.getHeight(); row++) {
+			for(int col = 0; col < layer.getWidth(); col++) {
+				
+				//get cell
+				Cell cell = layer.getCell(col, row);
+				
+				//check cell
+				if(cell == null) continue;
+				if(cell.getTile() == null) continue;
+				
+				//create body and fixture from cell
+				bdef.type = BodyType.StaticBody;
+				bdef.position.set(
+						(col + 0.5f) * tileSize / PPM,
+						(row + 0.5f) * tileSize / PPM);
+				
+				ChainShape cs = new ChainShape();
+				Vector2[] v = new Vector2[3];
+				v[0] = new Vector2(
+						-tileSize / 2 / PPM, -tileSize / 2 / PPM);
+				v[1] = new Vector2(
+						-tileSize / 2 / PPM, tileSize / 2 / PPM);
+				v[2] = new Vector2(
+						tileSize / 2 / PPM, tileSize / 2 / PPM);
+				cs.createChain(v);
+				
+				fdef.friction = 0;
+				fdef.shape = cs;
+				fdef.filter.categoryBits = B2DVars.BIT_RED;
+				fdef.filter.maskBits = B2DVars.BIT_PLAYER;
+				fdef.isSensor = false;
+				world.createBody(bdef).createFixture(fdef);
+			}
+		}
 	}
 
 }

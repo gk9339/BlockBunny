@@ -3,8 +3,8 @@ package com.gk.blockbunny.main;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.gk.blockbunny.handlers.Content;
 import com.gk.blockbunny.handlers.GameStateManager;
 import com.gk.blockbunny.handlers.MyInput;
 import com.gk.blockbunny.handlers.MyInputProcessor;
@@ -25,9 +25,14 @@ public class Game implements ApplicationListener{
 	
 	private GameStateManager gsm;
 	
+	public static Content res;
+	
 	public void create() {
 				
 		Gdx.input.setInputProcessor(new MyInputProcessor());
+		
+		res = new Content();
+		res.loadTexture("res/images/bunny.png", "bunny");
 		
 		sb = new SpriteBatch();
 		cam = new OrthographicCamera();
